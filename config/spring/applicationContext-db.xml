@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+ 		xmlns:aop="http://www.springframework.org/schema/aop"
+ 		xmlns:tx="http://www.springframework.org/schema/tx"
+		xmlns:context="http://www.springframework.org/schema/context"
+      	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     	  xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx 
+           http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+  	<!-- 
+  		引入prperties配置文件
+  	 -->
+  	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<value>classpath:jdbc.properties</value>
+		</property>
+	</bean>
+    
+  	<bean id="dataSource" destroy-method="close"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+
+<!-- 配置sessionFactory--> 
+<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="mappingLocations">
+			<list>
+				<value>classpath:/com/me/domain/*.hnm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+	</bean>
+
+<!-- 方法二 
+<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+	<property name="configLocation">
+				<value>classpath:hibernate.cfg.xml</value>
+	</property>
+</bean>
+-->
+<!-- 配置事务管理器 -->
+<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+	<property name="sessionFactory">
+		<ref bean="sessionFactory"/>
+	</property>
+</bean>
+<!-- 声明事物 -->
+<tx:advice id="tx" transaction-manager="transactionManager">
+	<tx:attributes>
+	<tx:method name="*Save*" isolation="DEFAULT" propagation="REQUIRED"
+		read-only="false" />
+	</tx:attributes>
+</tx:advice>
+<!-- 配置aop -->
+<aop:config>															
+	<aop:pointcut expression="execution(* com.me.*.impl.*.*(..))" id="perform"/>
+	<aop:advisor advice-ref="tx" pointcut-ref="perform"/>
+</aop:config>
+</beans>
