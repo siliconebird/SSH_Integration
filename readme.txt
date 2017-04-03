@@ -1,2 +1,2 @@
 
-SSH¿ò¼ÜÕûºÏÄ£°å OY!
+SSH framwork integration successful OY!
