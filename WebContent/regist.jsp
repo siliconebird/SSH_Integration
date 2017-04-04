@@ -8,6 +8,12 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<s:action name="depAction_show.action" executeResult="showAction"></s:action>
+<h1>reigst page</h1>
+<s:form action="depAction_saveDep">
+			<s:textfield label="部门名称" name="name"></s:textfield>
+			<s:textarea name="description"  label="部门描述"></s:textarea>
+			<s:submit label="提交"></s:submit>
+</s:form>
+
 </body>
 </html>
